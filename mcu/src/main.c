@@ -134,30 +134,40 @@ const int notes[][2] = {
 {494,	125},
 {440,	500},
 {  0,	0}};
-void start_delay_counts(TIM_TypeDef* TIMx, uint16_t counts){
-TIMx->CR1 &= ~(1U<<0);  //cenable off
-//uint16_t maxcount = ms*4000; //maybe safer to cast down
-TIMx->ARR = counts;
-TIMx->PSC = (uint16_t) 40-1; //prescaler to 100khz
-TIMx ->EGR |=(1U<<0);  //update flag set
-TIMx->SR &= ~(1U<<0); //clear uif flag
+void start_delay_micros(TIM_TypeDef* TIMx, uint16_t micros){
+  TIMx->CR1 &= ~(1U<<0);  //cenable off
+  //uint16_t maxcount = ms*4000; //maybe safer to cast down
+  uint16_t prescaler = 1;
+  if(micros%1000 ==0U) //if divisible into clean millis
+    {
+    prescaler = 40; //scale to 1 khz
+    } 
 
-//while((TIMx->SR &= (1U<<0))==0){}
-TIMx->CR1 |= (1U<<0);  //cenable on
+  
+  TIMx->ARR = (micros*4)/prescaler;
+
+  TIMx->PSC = (uint16_t) prescaler-1; //set presc
+  TIMx ->EGR |=(1U<<0);  //update flag set
+  TIMx->SR &= ~(1U<<0); //clear uif flag
+
+  //while((TIMx->SR &= (1U<<0))==0){}
+  TIMx->CR1 |= (1U<<0);  //cenable on
 
 }
 
 
-void play_note(int note[2]) {
-start_delay_counts(TIM6, note[1]*100);
-while((TIM6->SR & (1U<<0))==0){
-  if(note[0]!=0) {
-  GPIOA->ODR ^= (1 << 5);
-  uint32_t half_period_counts = 500000/note[0];
-  start_delay_counts(TIM7, half_period_counts);
-  while((TIM7->SR & (1U<<0))==0){
-    }
-    }
+void play_note(int note[2]) 
+{
+  start_delay_micros(TIM6, note[1]*1000);
+  while((TIM6->SR & (1U<<0))==0)
+    {
+    if(note[0]!=0) 
+      {
+      GPIOA->ODR ^= (1 << 5);
+      uint32_t half_period_micros = 500000/note[0];
+      start_delay_micros(TIM7, half_period_micros);
+      while((TIM7->SR & (1U<<0))==0){}
+      }
     }
 }
 int main(void) {
@@ -176,10 +186,8 @@ GPIOA->MODER |= (1 << 10);
 TIM6->CR1 &= ~(1U<<0);  //cenable off
 TIM7->CR1 &= ~(1U<<0);  //cenable off
 int num_notes = sizeof(notes) / sizeof(notes[0]);
-for (int i = 0; i < num_notes; i++) {
-
-
-
+for (int i = 0; i < num_notes; i++) 
+{
   play_note(notes[i]);
 }
 
