@@ -24,8 +24,53 @@ typedef struct {
 #define GPIOA ((GPIO_TypeDef *) GPIOA_BASE_ADR)
 #define TIM6 ((TIM_TypeDef *) TIM6_BASE_ADR)
 #define TIM7 ((TIM_TypeDef *) TIM7_BASE_ADR)
-const int notes[][2] = {
-{659,	125},
+ const int notes[][2] = {
+ {523, 500}, 
+{622,  500},
+{698,  375}, 
+{622,  375}, 
+{698,  250}, 
+
+// Measure 2
+{698,  250},
+{698,  250}, 
+{932, 250},
+{831,  250},
+{784,  125},
+{698,  250},
+{784,  375},
+{0,  250},
+
+// Measure 3
+{784,  500},
+{932, 500},
+{1047,  375}, 
+{698, 375},
+{622, 250},
+// Measure 4
+{932, 250},
+{932, 250},
+{784,  250},
+{932, 250},
+{932, 375},
+{1047, 625}, 
+
+//measure 4
+{1047, 1000},
+
+{0, 1000},
+
+//measure5
+{622,  250}, // C5 (Dotted quarter note)
+{466,  1000}, // C5 (Dotted quarter note)
+{622,  500},
+
+
+{698, 500},
+{466,  500},
+
+{  0, 1000},  // End of sequence snippet
+ {659,	125},
 {623,	125},
 {659,	125},
 {623,	125},
@@ -133,18 +178,21 @@ const int notes[][2] = {
 {523,	125},
 {494,	125},
 {440,	500},
-{  0,	0}};
-void start_delay_micros(TIM_TypeDef* TIMx, uint16_t micros){
+{  0,	1000} //end of furelise
+
+
+    };
+void start_delay_micros(TIM_TypeDef* TIMx, uint32_t micros){
   TIMx->CR1 &= ~(1U<<0);  //cenable off
   //uint16_t maxcount = ms*4000; //maybe safer to cast down
   uint16_t prescaler = 1;
   if(micros%1000 ==0U) //if divisible into clean millis
     {
-    prescaler = 40; //scale to 1 khz
+    prescaler = 4000; //scale to 1 khz
     } 
 
   
-  TIMx->ARR = (micros*4)/prescaler;
+  TIMx->ARR = (uint16_t)((micros*4)/prescaler);
 
   TIMx->PSC = (uint16_t) prescaler-1; //set presc
   TIMx ->EGR |=(1U<<0);  //update flag set
@@ -191,28 +239,6 @@ for (int i = 0; i < num_notes; i++)
   play_note(notes[i]);
 }
 
-
-//while(1){
-//  GPIOA->ODR |= (1 << 5);
-//  start_delay_counts(TIM6, 50000);
-//  while((TIM6->SR & (1U<<0))==0){  
-//  }
-//    //GPIOA->ODR &= ~(1 << 5);
-//  start_delay_counts(TIM6, 50000);
-//  while((TIM6->SR & (1U<<0))==0){  
-//  }
-//    start_delay_counts(TIM6, 50000);
-//  while((TIM6->SR & (1U<<0))==0){  
-//  }
-//    GPIOA->ODR &= ~(1 << 5);
-//    start_delay_counts(TIM6, 50000);
-//  while((TIM6->SR & (1U<<0))==0){  
-//  }
-
-//  start_delay_millis(TIM6, 1000);
-//  while((TIM6->SR & (1U<<0))==0){  
-//  }
-//}
 
 }
 
