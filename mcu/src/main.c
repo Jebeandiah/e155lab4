@@ -192,7 +192,7 @@ void start_delay_micros(TIM_TypeDef* TIMx, uint32_t micros){
     } 
 
   
-  TIMx->ARR = (uint16_t)((micros*4)/prescaler);
+  TIMx->ARR = (uint16_t)((micros*4)/prescaler)-1;
 
   TIMx->PSC = (uint16_t) prescaler-1; //set presc
   TIMx ->EGR |=(1U<<0);  //update flag set
