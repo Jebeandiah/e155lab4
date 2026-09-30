@@ -1,3 +1,8 @@
+//Author: Benjamin Lertwachara
+//Date: 9/30/28
+//Function: Initialize and comfigure GPIO and basic timers
+//to make pwm signal to play notes.
+
 #include <stdint.h>
 #define GPIOA_BASE_ADR (0x48000000UL)
 #define TIM6_BASE_ADR (0x40001000UL)
